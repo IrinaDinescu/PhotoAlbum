@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "194454660664",
+    "project_id": "photoalbum-ff95f",
+    "storage_bucket": "photoalbum-ff95f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194454660664:android:b27448c97c61cf3e0568cd",
+        "android_client_info": {
+          "package_name": "com.example.photoalbum"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "194454660664-qfqjsj500olobd5dl0lbedeud714fkg5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADgEzChWSrWCcYo3R1ZgbzhuDo1yNMDKk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "194454660664-qfqjsj500olobd5dl0lbedeud714fkg5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
