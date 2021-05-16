@@ -23,6 +23,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +38,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth fAuth;
     private DatabaseReference RootRef;
+    private StorageReference storageReference;
 
     private ProgressBar progressBar;
     private String userID;
@@ -91,7 +94,13 @@ public class RegisterActivity extends AppCompatActivity {
                             // send verification link
 
                             String currentUserID = fAuth.getCurrentUser().getUid();
-                            RootRef.child("Users").child(currentUserID).setValue("");
+
+                            RootRef.child("Users").child(currentUserID).child("profileImageUri").setValue("");
+                            RootRef.child("Users").child(currentUserID).child("name").setValue(fullName);
+                            RootRef.child("Users").child(currentUserID).child("email").setValue(email);
+                            RootRef.child("Users").child(currentUserID).child("groups").setValue("");
+                            RootRef.child("Users").child(currentUserID).child("friends").setValue("");
+                            RootRef.child("Users").child(currentUserID).child("uid").setValue(currentUserID);
 
                             FirebaseUser fuser = fAuth.getCurrentUser();
                             fuser.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
