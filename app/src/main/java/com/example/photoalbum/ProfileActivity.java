@@ -34,7 +34,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Button AddFriendButton;
     private Button DeclineFriendRequestButton;
 
-    private DatabaseReference UserRef, FriendRequestRef;
+    private DatabaseReference UserRef, FriendRequestRef, FriendsRef;
     private FirebaseAuth mAuth;
 
 
@@ -46,6 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         UserRef = FirebaseDatabase.getInstance().getReference().child("Users");
         FriendRequestRef = FirebaseDatabase.getInstance().getReference().child("Friend Requests");
+        FriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends");
 
 
         receiverUserID = getIntent().getExtras().get("visit_user_id").toString();
@@ -141,6 +142,26 @@ public class ProfileActivity extends AppCompatActivity {
 
                             }
                         }
+                        else {
+                            FriendsRef.child(senderUserID)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                                            if(snapshot.hasChild(receiverUserID)){
+
+                                                Current_State = "friends";
+                                                AddFriendButton.setText("Unfriend");
+                                            }
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                                        }
+                                    });
+                        }
 
                     }
 
@@ -159,13 +180,24 @@ public class ProfileActivity extends AppCompatActivity {
 
                     AddFriendButton.setEnabled(false);
 
-                    if(Current_State.equals("new")){
+                    if (Current_State.equals("new")){
 
                         SendFriendRequest();
                     }
 
-                    if(Current_State.equals("request_sent")){
+                    if (Current_State.equals("request_sent")){
+
                         CancelFriendRequest();
+                    }
+
+                    if (Current_State.equals("request_received")){
+
+                        AcceptFriendRequest();
+
+                    }
+                    if (Current_State.equals("friends")){
+
+                        RemoveFreind();
                     }
                 }
             });
@@ -174,6 +206,105 @@ public class ProfileActivity extends AppCompatActivity {
         }else{
             AddFriendButton.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void RemoveFreind() {
+
+        FriendsRef.child(senderUserID).child(receiverUserID)
+                .removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                        if(task.isSuccessful()){
+
+                            FriendsRef.child(receiverUserID).child(senderUserID)
+                                    .removeValue()
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                                            if(task.isSuccessful()){
+
+                                                AddFriendButton.setEnabled(true);
+                                                Current_State = "new";
+                                                AddFriendButton.setText("Add Friend");
+
+                                                DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
+                                                DeclineFriendRequestButton.setEnabled(false);
+                                            }
+
+
+                                        }
+                                    });
+
+                        }
+
+                    }
+                });
+
+
+    }
+
+
+    private void AcceptFriendRequest() {
+
+        FriendsRef.child(senderUserID).child(receiverUserID)
+                .child("Friends").setValue("Saved")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                        if(task.isSuccessful()){
+
+                            FriendsRef.child(receiverUserID).child(senderUserID)
+                                    .child("Friends").setValue("Saved")
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                                            if(task.isSuccessful()){
+
+                                                FriendRequestRef.child(senderUserID).child(receiverUserID)
+                                                        .removeValue()
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                                                                FriendRequestRef.child(receiverUserID).child(senderUserID)
+                                                                        .removeValue()
+                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                                                                                AddFriendButton.setEnabled(true);
+                                                                                Current_State = "firends";
+                                                                                AddFriendButton.setText("Unfriend");
+
+                                                                                DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
+                                                                                DeclineFriendRequestButton.setEnabled(false);
+
+                                                                            }
+                                                                        });
+                                                            }
+                                                        });
+
+
+
+                                            }
+                                        }
+                                    });
+
+
+
+                        }
+                    }
+                });
+
+
+
+
+
     }
 
     private void CancelFriendRequest() {
@@ -197,6 +328,9 @@ public class ProfileActivity extends AppCompatActivity {
                                                 AddFriendButton.setEnabled(true);
                                                 Current_State = "new";
                                                 AddFriendButton.setText("Add Friend");
+
+                                                DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
+                                                DeclineFriendRequestButton.setEnabled(false);
                                             }
 
 
