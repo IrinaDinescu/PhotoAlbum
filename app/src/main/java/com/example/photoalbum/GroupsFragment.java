@@ -82,6 +82,7 @@ public class GroupsFragment extends Fragment {
 
                 Intent GroupIntent = new Intent(getContext(), GroupActivity.class);
                 GroupIntent.putExtra("groupName", currentGroupName);
+
                 startActivity(GroupIntent);
 
 

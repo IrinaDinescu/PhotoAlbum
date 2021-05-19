@@ -47,7 +47,7 @@
                     android:layout_marginTop="5dp"
                     android:background="@android:color/holo_green_light"
                     android:textAlignment="center"
-                    android:visibility="visible">
+                    android:visibility="invisible">
                 </Button>
 
                 <Button
@@ -61,7 +61,7 @@
                     android:layout_marginTop="5dp"
                     android:textAlignment="center"
                     android:background="@android:color/holo_red_light"
-                    android:visibility="visible">
+                    android:visibility="invisible">
                 </Button>
 
 

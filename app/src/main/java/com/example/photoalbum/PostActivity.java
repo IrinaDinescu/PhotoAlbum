@@ -37,17 +37,21 @@ public class PostActivity extends AppCompatActivity {
 
     private Uri imageUri;
     private String imageUrl;
-    private String currentGroupName;
 
     private ImageView close;
     private ImageView imageAdded;
     private TextView post;
 
     private FirebaseAuth fAuth;
+    private DatabaseReference PostsRef;
     private StorageReference storageReference;
 
-
+    private String postType;
     private String userId;
+    private String publisherID;
+
+
+
 
     private static final int GALLERY_PICK = 1;
 
@@ -58,7 +62,8 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        currentGroupName = getIntent().getExtras().get("groupName").toString();
+        publisherID = getIntent().getExtras().get("userID").toString();
+
 
         InitializeFields();
 
@@ -100,30 +105,40 @@ public class PostActivity extends AppCompatActivity {
 
         if(imageUri != null) {
 
-            Log.v("Post", imageUri.toString());
-            Log.v("Post", "Imaginea se posteaza");
+            DatabaseReference newDataBaseReference =
+                    PostsRef.child("postID").push();
 
-            storageReference = FirebaseStorage.getInstance().getReference();
-            StorageReference filePath = storageReference.child("Groups").child(currentGroupName).child("Posts");
-            filePath = filePath.child(userId.toString() + ".jpg");
+            String postID = newDataBaseReference.getKey();
 
-            filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onComplete(@NonNull @NotNull Task<UploadTask.TaskSnapshot> task) {
-
-                    if(task.isSuccessful()){
-                        Toast.makeText(PostActivity.this, "Imagine incarcata cu succes!", Toast.LENGTH_SHORT);
-                        pd.dismiss();
-
-                    }else{
-                        String message = task.getException().toString();
-                        Toast.makeText(PostActivity.this, "Error " + message, Toast.LENGTH_SHORT);
-                    }
+            newDataBaseReference.child(postID).setValue("");
+            Log.v("Post_ID", "test " + postID);
 
 
 
-                }
-            });
+//            Log.v("Post", imageUri.toString());
+//            Log.v("Post", "Imaginea se posteaza");
+//
+//            storageReference = FirebaseStorage.getInstance().getReference();
+//            StorageReference filePath = storageReference.child("Groups").child(currentGroupName).child("Posts");
+//            filePath = filePath.child(userId.toString() + ".jpg");
+//
+//            filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull @NotNull Task<UploadTask.TaskSnapshot> task) {
+//
+//                    if(task.isSuccessful()){
+//                        Toast.makeText(PostActivity.this, "Imagine incarcata cu succes!", Toast.LENGTH_SHORT);
+//                        pd.dismiss();
+//
+//                    }else{
+//                        String message = task.getException().toString();
+//                        Toast.makeText(PostActivity.this, "Error " + message, Toast.LENGTH_SHORT);
+//                    }
+//
+//
+//
+//                }
+//            });
 
 
 
@@ -152,6 +167,10 @@ public class PostActivity extends AppCompatActivity {
         post = findViewById(R.id.post);
 
         fAuth = FirebaseAuth.getInstance();
+        PostsRef = FirebaseDatabase.getInstance().getReference().child("Posts");
+
+
+
         userId = fAuth.getCurrentUser().getUid();
     }
 }

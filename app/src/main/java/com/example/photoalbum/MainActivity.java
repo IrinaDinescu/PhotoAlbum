@@ -8,7 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TableLayout;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth fAuth;
     private DatabaseReference RootRef;
 
+    private String currentUserID;
+
 
     private static final int BEHAVIOR_1 = 0;
 
@@ -52,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
         currentUser = fAuth.getCurrentUser();
         RootRef = FirebaseDatabase.getInstance().getReference();
+
+       // currentUserID = fAuth.getCurrentUser().getUid();
+      //  Log.v("currentUserId", "test " + currentUserID);
 
         mToolbar = (Toolbar) findViewById(R.id.main_page_toolbar);
         setSupportActionBar(mToolbar);
@@ -92,7 +99,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
          super.onCreateOptionsMenu(menu);
 
-        getMenuInflater().inflate(R.menu.options_menu, menu);
+        MenuInflater inflater = getMenuInflater();
+
+        inflater.inflate(R.menu.options_menu, menu);
+
 
         return true;
     }
@@ -157,13 +167,35 @@ public class MainActivity extends AppCompatActivity {
 
     private void CreateNewGroup(String groupName) {
 
-        RootRef.child("Groups").child(groupName).setValue("")
+//        RootRef.child("Groups").child(groupName).setValue("")
+//                .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                        if(task.isSuccessful()){
+//                            Toast.makeText(MainActivity.this, groupName + " is created", Toast.LENGTH_SHORT);
+//                        }
+//                    }
+//                });
+
+        DatabaseReference GroupRef = RootRef.child("Groups");
+        DatabaseReference newDatabaseRef = GroupRef.push();
+
+        String newGroupID = newDatabaseRef.getKey();
+
+        newDatabaseRef.child(newGroupID).child("name").setValue(groupName)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull @NotNull Task<Void> task) {
+
                         if(task.isSuccessful()){
-                            Toast.makeText(MainActivity.this, groupName + " is created", Toast.LENGTH_SHORT);
+
+                            newDatabaseRef.child(newGroupID).child("admin").setValue(currentUserID);
+                            newDatabaseRef.child(newGroupID).child("group id").setValue(newGroupID);
+
+                            Toast.makeText(MainActivity.this, groupName + " was created succesfully", Toast.LENGTH_SHORT).show();
+
                         }
+
                     }
                 });
     }
