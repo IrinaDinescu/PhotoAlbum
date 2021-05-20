@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,14 +27,18 @@ import com.squareup.picasso.Picasso;
 public class GroupActivity extends AppCompatActivity {
 
     private String currentGroupName;
+    private String currentGroupID;
+
     private TextView groupNameEditText;
-    private ImageView groupProfileImagge;
+    private ImageView groupProfileImage;
 
     private Button  btnIncarcaImagine;
 
     String userId;
     FirebaseAuth fAuth;
+
     StorageReference storageReference;
+    StorageReference groupStorageRef;
 
 
 
@@ -42,10 +47,15 @@ public class GroupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group);
 
-        groupNameEditText = (TextView) findViewById(R.id.group_name_text);
-        groupProfileImagge = (ImageView) findViewById(R.id.group_profile_image);
-
         currentGroupName = getIntent().getExtras().get("groupName").toString();
+        currentGroupID = getIntent().getExtras().get("groupID").toString();
+
+
+
+        groupNameEditText = (TextView) findViewById(R.id.group_name_text);
+        groupProfileImage = (ImageView) findViewById(R.id.group_profile_image);
+
+
         groupNameEditText.setText(currentGroupName);
 
         fAuth = FirebaseAuth.getInstance();
@@ -55,28 +65,24 @@ public class GroupActivity extends AppCompatActivity {
 
         btnIncarcaImagine = (Button) findViewById(R.id.add_image);
 
+
         btnIncarcaImagine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent postActivityIntent = new Intent(GroupActivity.this, PostActivity.class);
-                postActivityIntent.putExtra("groupName", currentGroupName);
-                postActivityIntent.putExtra("postType", "group");
-                startActivity(postActivityIntent);
+                pornestePostActivity();
             }
         });
-
-
 
 
         StorageReference profileRef = storageReference.getRoot().child("Groups").child(currentGroupName).child("Profile");
         profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                Picasso.get().load(uri).into(groupProfileImagge);
+                Picasso.get().load(uri).into(groupProfileImage);
             }
         });
 
-        groupProfileImagge.setOnClickListener(new View.OnClickListener() {
+        groupProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // open gallery
@@ -120,7 +126,7 @@ public class GroupActivity extends AppCompatActivity {
                 fileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Picasso.get().load(uri).into(groupProfileImagge);
+                        Picasso.get().load(uri).into(groupProfileImage);
                     }
                 });
 
@@ -132,5 +138,17 @@ public class GroupActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void pornestePostActivity(){
+
+        Intent postActivityIntent = new Intent(GroupActivity.this, PostActivity.class);
+
+        postActivityIntent.putExtra("Name", currentGroupName);
+        postActivityIntent.putExtra("ID", currentGroupID );
+        postActivityIntent.putExtra("postType", "group");
+
+        startActivity(postActivityIntent);
+
     }
 }

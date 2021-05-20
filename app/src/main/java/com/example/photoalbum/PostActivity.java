@@ -62,7 +62,7 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        publisherID = getIntent().getExtras().get("userID").toString();
+        publisherID = getIntent().getExtras().get("ID").toString();
 
 
         InitializeFields();

@@ -33,19 +33,20 @@
     </style>
 
 
+<!--    <style name="AlertDialog" parent="@android:style/Theme.Dialog">-->
+<!--        <item name="android:textColor">#00FF00</item>-->
+<!--        <item name="android:typeface">monospace</item>-->
+<!--        <item name="android:textSize">10sp</item>-->
+<!--        <item name="background">@color/purple_200</item>-->
+<!--    </style>-->
 
 
 
-    <style name="AlertDialog" parent="@android:style/Theme.Dialog">
-        <item name="android:textColor">#00FF00</item>
-        <item name="android:typeface">monospace</item>
-        <item name="android:textSize">10sp</item>
-        <item name="backgroundColor">@color/purple_200</item>
+    <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">#FFCC00</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:background">#5fa3d0</item>
     </style>
-
-
-
-
 
 
 

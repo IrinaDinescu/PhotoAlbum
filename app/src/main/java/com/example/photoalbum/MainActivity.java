@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         currentUser = fAuth.getCurrentUser();
         RootRef = FirebaseDatabase.getInstance().getReference();
 
-       // currentUserID = fAuth.getCurrentUser().getUid();
+        currentUserID = fAuth.getCurrentUser().getUid();
       //  Log.v("currentUserId", "test " + currentUserID);
 
         mToolbar = (Toolbar) findViewById(R.id.main_page_toolbar);
@@ -167,36 +167,42 @@ public class MainActivity extends AppCompatActivity {
 
     private void CreateNewGroup(String groupName) {
 
-//        RootRef.child("Groups").child(groupName).setValue("")
-//                .addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-//                        if(task.isSuccessful()){
-//                            Toast.makeText(MainActivity.this, groupName + " is created", Toast.LENGTH_SHORT);
-//                        }
-//                    }
-//                });
-
         DatabaseReference GroupRef = RootRef.child("Groups");
         DatabaseReference newDatabaseRef = GroupRef.push();
 
+
+
         String newGroupID = newDatabaseRef.getKey();
 
-        newDatabaseRef.child(newGroupID).child("name").setValue(groupName)
+        newDatabaseRef.child("name").setValue(groupName)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull @NotNull Task<Void> task) {
 
                         if(task.isSuccessful()){
 
-                            newDatabaseRef.child(newGroupID).child("admin").setValue(currentUserID);
-                            newDatabaseRef.child(newGroupID).child("group id").setValue(newGroupID);
+                            newDatabaseRef.child("admin").setValue(currentUserID);
+
+                            newDatabaseRef.child("id").setValue(newGroupID);
+                            Log.v("currentUserID", "Test " + currentUserID);
+
+
 
                             Toast.makeText(MainActivity.this, groupName + " was created succesfully", Toast.LENGTH_SHORT).show();
 
                         }
 
                     }
-                });
+                }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                DatabaseReference MembershipsRef = RootRef.child("Memberships");
+                MembershipsRef.child(currentUserID).child(newGroupID).child("status").setValue("admin");
+                MembershipsRef.child(currentUserID).child(newGroupID).child("name").setValue(groupName);
+
+
+            }
+        });
     }
 }
