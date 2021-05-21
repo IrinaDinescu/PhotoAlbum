@@ -6,23 +6,32 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.photoalbum.clase.Group;
+import com.example.photoalbum.clase.Post;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
@@ -31,6 +40,8 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 public class PostActivity extends AppCompatActivity {
@@ -43,17 +54,20 @@ public class PostActivity extends AppCompatActivity {
     private TextView post;
 
     private FirebaseAuth fAuth;
+    private DatabaseReference RootRef;
+    private StorageReference storageRef;
     private DatabaseReference PostsRef;
-    private StorageReference storageReference;
+    private StorageReference PostStorageRef;
 
+    private String publisherName;
     private String postType;
-    private String userId;
     private String publisherID;
 
-
-
+    private String userId;
 
     private static final int GALLERY_PICK = 1;
+
+
 
 
 
@@ -62,16 +76,14 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        publisherID = getIntent().getExtras().get("ID").toString();
-
 
         InitializeFields();
 
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(PostActivity.this , GroupActivity.class));
-                finish();
+
+                trateazaClose();
             }
         });
 
@@ -79,12 +91,7 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-//                CropImage.activity().start(PostActivity.this);
-                Intent galleryIntent = new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent, GALLERY_PICK);
-
+                trateazaClickImagineAdd();
             }
         });
 
@@ -101,49 +108,86 @@ public class PostActivity extends AppCompatActivity {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setMessage("Uploading");
-        pd.show();
 
         if(imageUri != null) {
 
-            DatabaseReference newDataBaseReference =
-                    PostsRef.child("postID").push();
-
-            String postID = newDataBaseReference.getKey();
-
-            newDataBaseReference.child(postID).setValue("");
-            Log.v("Post_ID", "test " + postID);
 
 
 
-//            Log.v("Post", imageUri.toString());
-//            Log.v("Post", "Imaginea se posteaza");
-//
-//            storageReference = FirebaseStorage.getInstance().getReference();
-//            StorageReference filePath = storageReference.child("Groups").child(currentGroupName).child("Posts");
-//            filePath = filePath.child(userId.toString() + ".jpg");
-//
-//            filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-//                @Override
-//                public void onComplete(@NonNull @NotNull Task<UploadTask.TaskSnapshot> task) {
-//
-//                    if(task.isSuccessful()){
-//                        Toast.makeText(PostActivity.this, "Imagine incarcata cu succes!", Toast.LENGTH_SHORT);
-//                        pd.dismiss();
-//
-//                    }else{
-//                        String message = task.getException().toString();
-//                        Toast.makeText(PostActivity.this, "Error " + message, Toast.LENGTH_SHORT);
-//                    }
-//
-//
-//
-//                }
-//            });
 
 
+            String pictureName = String.valueOf(System.currentTimeMillis()) + "." + getFileExtension(imageUri);
+            StorageReference newStorageReference = PostStorageRef.child(pictureName);
+
+            newStorageReference.putFile(imageUri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                            Date currentTime = Calendar.getInstance().getTime();
+
+                            DatabaseReference newDataBaseReference = PostsRef.push();
+
+                            String postID = newDataBaseReference.getKey();
+
+                            Task<Uri> result = taskSnapshot.getStorage().getDownloadUrl();
+                            result.addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+
+                                    String imageDownloadURL = uri.toString();
+
+                                    Post post = new Post(pictureName,imageDownloadURL, publisherID, postID, userId, currentTime.toString());
+
+                                    PostsRef.child(postID).setValue(post);
+                                }
+                            });
+
+
+                            pd.dismiss();
+                            Toast.makeText(PostActivity.this,"Upload succesfull!", Toast.LENGTH_LONG).show();
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull @NotNull Exception e) {
+
+                    Toast.makeText(PostActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                }
+            }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(@NonNull @NotNull UploadTask.TaskSnapshot snapshot) {
+
+                    pd.show();
+
+                }
+            });
+
+
+
+
+        }else{
+
+            Toast.makeText(PostActivity.this,"Please upload a photo from gallery first!", Toast.LENGTH_SHORT).show();
 
         }
 
+    }
+
+    private String getFileExtension(Uri uri){
+
+        ContentResolver cR = getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+
+    private void trateazaClickImagineAdd(){
+
+        Intent galleryIntent = new Intent();
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+        galleryIntent.setType("image/*");
+        startActivityForResult(galleryIntent, GALLERY_PICK);
 
     }
 
@@ -160,17 +204,48 @@ public class PostActivity extends AppCompatActivity {
         }
     }
 
+    private void trateazaClose(){
+
+        if(postType.equals("group")){
+
+            finish();
+        }else{
+
+            finish();
+        }
+
+    }
+
     private void InitializeFields() {
 
         close = findViewById(R.id.close);
         imageAdded = findViewById(R.id.image_added);
         post = findViewById(R.id.post);
 
+
+
+        postType = getIntent().getExtras().get("postType").toString();
+        publisherName = getIntent().getExtras().get("Name").toString();
+        publisherID = getIntent().getExtras().get("ID").toString();
+
         fAuth = FirebaseAuth.getInstance();
-        PostsRef = FirebaseDatabase.getInstance().getReference().child("Posts");
-
-
-
         userId = fAuth.getCurrentUser().getUid();
+
+        RootRef = FirebaseDatabase.getInstance().getReference();
+        storageRef = FirebaseStorage.getInstance().getReference();
+
+
+        if(postType.equals("group")){
+            PostsRef = RootRef.child("Groups Posts").child(publisherID);
+            PostStorageRef = storageRef.child("Groups").child("Posts").child(publisherID);
+        }else{
+            PostsRef = RootRef.child("Users Posts").child(publisherID);
+            PostStorageRef = storageRef.child("Users").child("Posts").child(publisherID);
+        }
+
+
+
     }
+
+
 }

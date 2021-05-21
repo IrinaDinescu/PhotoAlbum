@@ -2,50 +2,71 @@ package com.example.photoalbum.clase;
 
 public class Post {
 
-    private String description;
-    private String imageurl;
-    private String postid;
-    private String publisher;
+    private String pictureName;
+    private String imageUrl;
+    private String publisherId;
+    private String postId;
+    private String uId;
+    private String date;
+
 
     public Post() {
     }
 
-    public Post(String description, String imageurl, String postid, String publisher) {
-        this.description = description;
-        this.imageurl = imageurl;
-        this.postid = postid;
-        this.publisher = publisher;
+    public Post(String pictureName, String imageUrl, String publisherId, String postId, String uId, String date) {
+        this.imageUrl = imageUrl;
+        this.publisherId = publisherId;
+        this.postId = postId;
+        this.uId = uId;
+        this.date = date;
+        this.pictureName = pictureName;
     }
 
-    public String getDescription() {
-        return description;
+    public String getPictureName() {
+        return pictureName;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setPictureName(String pictureName) {
+        this.pictureName = pictureName;
     }
 
-    public String getImageurl() {
-        return imageurl;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setImageurl(String imageurl) {
-        this.imageurl = imageurl;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
-    public String getPostid() {
-        return postid;
+    public String getPublisherId() {
+        return publisherId;
     }
 
-    public void setPostid(String postid) {
-        this.postid = postid;
+    public void setPublisherId(String publisherId) {
+        this.publisherId = publisherId;
     }
 
-    public String getPublisher() {
-        return publisher;
+    public String getPostId() {
+        return postId;
     }
 
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
+
+    public String getuId() {
+        return uId;
+    }
+
+    public void setuId(String uId) {
+        this.uId = uId;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
