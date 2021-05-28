@@ -2,6 +2,8 @@ package com.example.photoalbum;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -16,13 +18,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.photoalbum.clase.ImageAdapter;
+import com.example.photoalbum.clase.Post;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class GroupActivity extends AppCompatActivity {
 
@@ -30,7 +46,7 @@ public class GroupActivity extends AppCompatActivity {
     private String currentGroupID;
 
     private TextView groupNameEditText;
-    private ImageView groupProfileImage;
+    private CircleImageView groupProfileImage;
 
     private Button  btnIncarcaImagine;
 
@@ -39,7 +55,15 @@ public class GroupActivity extends AppCompatActivity {
 
     StorageReference storageReference;
     StorageReference groupStorageRef;
+    StorageReference postsSorageRef;
 
+    private RecyclerView mRecylerView;
+    private ImageAdapter mAdapter;
+
+    private DatabaseReference mDatabaseRef;
+    private List<Post> mPosts;
+
+    LinearLayoutManager layoutManager;
 
 
     @Override
@@ -53,13 +77,14 @@ public class GroupActivity extends AppCompatActivity {
 
 
         groupNameEditText = (TextView) findViewById(R.id.group_name_text);
-        groupProfileImage = (ImageView) findViewById(R.id.group_profile_image);
+        groupProfileImage = (CircleImageView) findViewById(R.id.group_profile_image);
 
 
         groupNameEditText.setText(currentGroupName);
 
         fAuth = FirebaseAuth.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference();
+        postsSorageRef = FirebaseStorage.getInstance().getReference().child("Groups").child("Posts").child(currentGroupID);
 
         userId = fAuth.getCurrentUser().getUid();
 
@@ -74,13 +99,13 @@ public class GroupActivity extends AppCompatActivity {
         });
 
 
-        StorageReference profileRef = storageReference.getRoot().child("Groups").child(currentGroupName).child("Profile");
-        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Picasso.get().load(uri).into(groupProfileImage);
-            }
-        });
+//        StorageReference profileRef = storageReference.getRoot().child("Groups").child(currentGroupName).child("Profile");
+//        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//            @Override
+//            public void onSuccess(Uri uri) {
+//                Picasso.get().load(uri).into(groupProfileImage);
+//            }
+//        });
 
         groupProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,7 +120,74 @@ public class GroupActivity extends AppCompatActivity {
             }
         });
 
+        mRecylerView = findViewById(R.id.recycler_view_images_group);
+        mRecylerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        mRecylerView.setLayoutManager(layoutManager);
 
+        mPosts = new ArrayList<>();
+
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Groups Posts").child(currentGroupID);
+
+//        RetrievePosts();
+//
+//        mAdapter = new ImageAdapter(GroupActivity.this, mPosts);
+//
+//        mRecylerView.setAdapter(mAdapter);
+
+        RetrieveImages();
+    }
+
+    private void RetrievePosts() {
+
+        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                for(DataSnapshot postSnapshot : snapshot.getChildren()){
+
+                    Post post = postSnapshot.getValue(Post.class);
+                    mPosts.add(post);
+
+                    Log.v("GroupActivity", "test " + post.getImageUrl());
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void RetrieveImages() {
+
+        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                for(DataSnapshot postSnapshot : snapshot.getChildren()){
+
+                    Post post = postSnapshot.getValue(Post.class);
+                    mPosts.add(post);
+                }
+
+                mAdapter = new ImageAdapter(GroupActivity.this, mPosts);
+
+                mRecylerView.setAdapter(mAdapter);
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                Toast.makeText(GroupActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     @Override
