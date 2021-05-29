@@ -84,7 +84,11 @@ public class GroupsFragment extends Fragment {
         myGroupsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mAuth = FirebaseAuth.getInstance();
-        currentUsserID = mAuth.getCurrentUser().getUid();
+
+        if(mAuth !=null){
+            currentUsserID = mAuth.getCurrentUser().getUid();
+        }
+
 
         MembershipsRef = FirebaseDatabase.getInstance().getReference().child("Memberships").child(currentUsserID);
         GroupsRef = FirebaseDatabase.getInstance().getReference().child("Groups");

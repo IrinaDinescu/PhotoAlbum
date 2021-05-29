@@ -33,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public static final String TAG = "TAG";
     private EditText mFullName,mEmail,mPassword;
-    private Button mRegisterBtn;
+    private View mRegisterBtn;
     private TextView mLoginBtn;
 
     private FirebaseAuth fAuth;
@@ -57,7 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
         RootRef = FirebaseDatabase.getInstance().getReference();
 
-        progressBar = findViewById(R.id.progressBar);
+
 
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +122,8 @@ public class RegisterActivity extends AppCompatActivity {
                             user.put("fName", fullName);
                             user.put("email", email);
                             //   user.put("phone",phone);
+
+
 
 
                         }

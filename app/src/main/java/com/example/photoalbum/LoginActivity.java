@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -20,9 +21,11 @@ import com.google.firebase.auth.FirebaseUser;
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseUser currentUser;
-    Button mLoginBtn, mRegisterBtn;
-    FirebaseAuth fAuth;
-    EditText mEmail,mPassword;
+    private FirebaseAuth fAuth;
+
+
+    private EditText mEmail,mPassword;
+    private TextView tvLogin, tvRegister;
 
 
     @Override
@@ -30,55 +33,68 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mEmail = findViewById(R.id.editText_Email);
-        mPassword = findViewById(R.id.editText_Password);
-        fAuth = FirebaseAuth.getInstance();
-        currentUser = fAuth.getCurrentUser();
-        mLoginBtn = findViewById(R.id.loginBtn);
-        mRegisterBtn = findViewById(R.id.registerBtn);
 
-        mRegisterBtn.setOnClickListener(new View.OnClickListener() {
+        initializare();
+
+        tvRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getApplicationContext(),RegisterActivity.class));
             }
         });
 
-        mLoginBtn.setOnClickListener(new View.OnClickListener() {
+        tvLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String email = mEmail.getText().toString().trim();
-                String password = mPassword.getText().toString().trim();
+                trateazaLogin();
 
-                if(TextUtils.isEmpty(email)){
-                    mEmail.setError("Email is Required.");
-                    return;
+            }
+        });
+    }
+
+    private void initializare() {
+
+        mEmail = findViewById(R.id.editText_Email);
+        mPassword = findViewById(R.id.editText_Password);
+        fAuth = FirebaseAuth.getInstance();
+        currentUser = fAuth.getCurrentUser();
+
+        tvLogin = findViewById(R.id.login_);
+        tvRegister = findViewById(R.id.tv_register);
+    }
+
+
+    public void trateazaLogin(){
+
+        String email = mEmail.getText().toString().trim();
+        String password = mPassword.getText().toString().trim();
+
+        if(TextUtils.isEmpty(email)){
+            mEmail.setError("Email is Required.");
+            return;
+        }
+
+        if(TextUtils.isEmpty(password)){
+            mPassword.setError("Password is Required.");
+            return;
+        }
+
+        if(password.length() < 6){
+            mPassword.setError("Password Must be >= 6 Characters");
+            return;
+        }
+
+        fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(LoginActivity.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                }else {
+                    Toast.makeText(LoginActivity.this, "Error ! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    // progressBar.setVisibility(View.GONE);
                 }
-
-                if(TextUtils.isEmpty(password)){
-                    mPassword.setError("Password is Required.");
-                    return;
-                }
-
-                if(password.length() < 6){
-                    mPassword.setError("Password Must be >= 6 Characters");
-                    return;
-                }
-
-                fAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            Toast.makeText(LoginActivity.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        }else {
-                            Toast.makeText(LoginActivity.this, "Error ! " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            // progressBar.setVisibility(View.GONE);
-                        }
-
-                    }
-                });
 
             }
         });

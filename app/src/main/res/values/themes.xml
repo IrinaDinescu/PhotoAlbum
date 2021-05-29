@@ -4,10 +4,17 @@
 
         <item name="android:actionBarStyle">@style/MyActionBar</item>
 
+        <item name="android:itemBackground">@color/Flame</item>
+        <item name="android:colorBackground">@color/Flame</item>
+        <item name="colorPrimaryDark">@color/black</item>
+
+
 
 
 
         <!-- Primary brand color. -->
+
+
 
         <!-- Customize your theme here. -->
     </style>
@@ -19,7 +26,7 @@
 
     <style name="MyActionBar.TitleTextStlye"
         parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title">
-        <item name="android:titleTextColor" tools:targetApi="m">#F0F</item>
+        <item name="android:titleTextColor" tools:targetApi="m">@color/Flame</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">24dip</item>
     </style>
