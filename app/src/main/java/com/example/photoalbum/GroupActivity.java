@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +23,7 @@ import com.example.photoalbum.clase.ImageAdapter;
 import com.example.photoalbum.clase.Post;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,7 +50,7 @@ public class GroupActivity extends AppCompatActivity {
     private TextView groupNameEditText;
     private CircleImageView groupProfileImage;
 
-    private Button  btnIncarcaImagine;
+//    private Button  btnIncarcaImagine;
 
     String userId;
     FirebaseAuth fAuth;
@@ -62,6 +64,8 @@ public class GroupActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabaseRef;
     private List<Post> mPosts;
+
+    BottomNavigationView bottomNavigationView ;
 
     LinearLayoutManager layoutManager;
 
@@ -88,15 +92,53 @@ public class GroupActivity extends AppCompatActivity {
 
         userId = fAuth.getCurrentUser().getUid();
 
-        btnIncarcaImagine = (Button) findViewById(R.id.add_image);
+        //btnIncarcaImagine = (Button) findViewById(R.id.add_image);
 
+        bottomNavigationView = findViewById(R.id.nav_menu_id);
 
-        btnIncarcaImagine.setOnClickListener(new View.OnClickListener() {
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                pornestePostActivity();
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_menu_settings:
+                        Toast.makeText(GroupActivity.this, "Settings", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.nav_menu_members:
+
+                        Intent iMembers = new Intent(GroupActivity.this, MembersActivity.class);
+                        iMembers.putExtra("GroupID",currentGroupID);
+                        iMembers.putExtra("GroupName",currentGroupName);
+
+                        startActivity(iMembers);
+
+                        break;
+                    case R.id.nav_menu_post:
+                        Toast.makeText(GroupActivity.this, "Post", Toast.LENGTH_SHORT).show();
+                        pornestePostActivity();
+                        break;
+                    case R.id.nav_menu_add_member:
+                        Toast.makeText(GroupActivity.this, "Add member", Toast.LENGTH_SHORT).show();
+
+                        Intent i = new Intent(GroupActivity.this, AddMembersActivity.class);
+                        i.putExtra("GroupID",currentGroupID);
+                        i.putExtra("GroupName",currentGroupName);
+
+                        startActivity(i);
+
+                        break;                }
+                return true;
             }
         });
+
+
+//
+//
+//        btnIncarcaImagine.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                pornestePostActivity();
+//            }
+//        });
 
 
 //        StorageReference profileRef = storageReference.getRoot().child("Groups").child(currentGroupName).child("Profile");

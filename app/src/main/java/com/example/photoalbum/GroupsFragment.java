@@ -80,6 +80,8 @@ public class GroupsFragment extends Fragment {
 
         groupsFragmentView = inflater.inflate(R.layout.fragment_groups, container, false);
 
+
+
         myGroupsList = (RecyclerView) groupsFragmentView.findViewById(R.id.groups_recycler_view);
         myGroupsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -193,7 +195,7 @@ public class GroupsFragment extends Fragment {
             @Override
             public GroupsViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup viewGroup, int viewType) {
 
-                View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.users_display_layout, viewGroup, false);
+                View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.group_display_layout, viewGroup, false);
                 GroupsViewHolder viewHolder = new GroupsViewHolder(view);
                 return  viewHolder;
             }
@@ -216,8 +218,8 @@ public class GroupsFragment extends Fragment {
             super(itemView);
 
             //------> TODO sa schimb cu un group view
-            groupName = itemView.findViewById(R.id.users_profile_name);
-            groupProfileImage = itemView.findViewById(R.id.users_profile_image);
+            groupName = itemView.findViewById(R.id.group_name_in_fragment);
+            groupProfileImage = itemView.findViewById(R.id.group_profile_image_in_fragment);
         }
     }
 }

@@ -7,6 +7,7 @@
 
     <item
         android:title="Find friends"
+        android:icon="@drawable/ic_baseline_person_add_alt_1_24"
         android:id="@+id/main_find_friends_option"
         app:showAsAction="always"
         android:background="@color/black">

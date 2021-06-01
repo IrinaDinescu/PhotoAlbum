@@ -330,7 +330,7 @@ public class RequestFragment extends Fragment {
 
         TextView userName;
         CircleImageView profileImage;
-        Button AcceptButton, DeclineButton;
+        View AcceptButton, DeclineButton;
 
         public RequestViewHolder(@NonNull @NotNull View itemView) {
 

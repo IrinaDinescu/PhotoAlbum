@@ -4,5 +4,5 @@
     android:id="@+id/main_app_bar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:theme="@style/MyActionBar">
+    android:background="@color/teal_700">
 </androidx.appcompat.widget.Toolbar>

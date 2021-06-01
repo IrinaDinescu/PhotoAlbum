@@ -4,11 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".GroupsFragment"
-    android:id="@+id/fragment_groups">
+    android:id="@+id/fragment_groups"
+    android:background="@drawable/group_gradient_background">
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/groups_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@drawable/group_gradient_background"/>
 </RelativeLayout>

@@ -13,7 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PhotoAlbum">
-        <activity android:name=".MyPageActivity"></activity>
+        <activity android:name=".MembersActivity"></activity>
+        <activity android:name=".AddMembersActivity" />
+        <activity android:name=".MyPageActivity" />
         <activity android:name=".ProfileActivity" />
         <activity
             android:name=".FindFriendsActivity"
@@ -21,8 +23,8 @@
         <activity android:name=".PostActivity" />
         <activity android:name=".GroupActivity" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".MainActivity"/>
-        <activity android:name=".LoginActivity" >
+        <activity android:name=".MainActivity" />
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

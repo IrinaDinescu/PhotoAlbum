@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="2dp"
+    android:layout_marginTop="3dp"
+    android:layout_marginBottom="1dp"
+    android:layout_marginEnd="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/group_linear_layout_background"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/group_profile_image_in_fragment"
+            android:layout_width="85dp"
+            android:layout_height="85dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/group_profile_pic" />
+
+        <TextView
+            android:id="@+id/group_name_in_fragment"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Group Name"
+            android:textAlignment="textStart"
+            android:textSize="24dp"
+            android:textStyle="bold"
+            android:textColor="@color/teal_700"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="15dp"
+            android:outlineProvider="bounds" />
+    </LinearLayout>
+
+</LinearLayout>
