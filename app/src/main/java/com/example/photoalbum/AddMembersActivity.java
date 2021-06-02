@@ -53,6 +53,8 @@ public class AddMembersActivity extends AppCompatActivity {
 
     private String groupName;
 
+    private String userStatus;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,12 +62,19 @@ public class AddMembersActivity extends AppCompatActivity {
 
         initializare();
 
+
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                adaugaMembriiGrup();
-              //  inchideIntent();
+                if(userStatus.equals("admin")){
+                    adaugaMembriiGrup();
+
+                }else{
+                    Toast.makeText(AddMembersActivity.this, "Trebuie sa fiti admin pentru a putea adauga membrii!", Toast.LENGTH_LONG).show();
+                }
+
             }
         });
     }
@@ -92,11 +101,7 @@ public class AddMembersActivity extends AppCompatActivity {
                             membershipRef.child("name").setValue(groupName);
                             membershipRef.child("status").setValue("member");
 
-                            Log.v("AddMember", memberID + " membru adaugat");
-
-
                         }else{
-                            Log.v("AddMember", memberID + " este deja membru in grup");
                         }
                     }
 
@@ -134,6 +139,7 @@ public class AddMembersActivity extends AppCompatActivity {
         UsersRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
         currentGroupID = getIntent().getExtras().get("GroupID").toString();
+        userStatus = getIntent().getExtras().get("userStatus").toString();
 
         membersToAdd = new ArrayList();
 
@@ -142,6 +148,8 @@ public class AddMembersActivity extends AppCompatActivity {
         RootRef = FirebaseDatabase.getInstance().getReference();
 
         groupName = getIntent().getExtras().get("GroupName").toString();
+
+
     }
 
 

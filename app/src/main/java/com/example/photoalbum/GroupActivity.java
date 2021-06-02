@@ -50,8 +50,6 @@ public class GroupActivity extends AppCompatActivity {
     private TextView groupNameEditText;
     private CircleImageView groupProfileImage;
 
-//    private Button  btnIncarcaImagine;
-
     String userId;
     FirebaseAuth fAuth;
 
@@ -69,30 +67,85 @@ public class GroupActivity extends AppCompatActivity {
 
     LinearLayoutManager layoutManager;
 
+    private String uStatus;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group);
 
-        currentGroupName = getIntent().getExtras().get("groupName").toString();
-        currentGroupID = getIntent().getExtras().get("groupID").toString();
+       initializare();
+
+        modificaImagineProfile();
+
+        incarcaImagineInCircleImage();
 
 
+        RetrieveImages();
+    }
 
-        groupNameEditText = (TextView) findViewById(R.id.group_name_text);
-        groupProfileImage = (CircleImageView) findViewById(R.id.group_profile_image);
+    private void modificaImagineProfile() {
 
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference userMembershipRef = rootRef.child("Memberships").child(userId).child(currentGroupID);
 
-        groupNameEditText.setText(currentGroupName);
+        userMembershipRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
-        fAuth = FirebaseAuth.getInstance();
-        storageReference = FirebaseStorage.getInstance().getReference();
-        postsSorageRef = FirebaseStorage.getInstance().getReference().child("Groups").child("Posts").child(currentGroupID);
+                String userStatus = snapshot.child("status").getValue().toString().trim();
 
-        userId = fAuth.getCurrentUser().getUid();
+                if(userStatus.equals("admin")){
 
-        //btnIncarcaImagine = (Button) findViewById(R.id.add_image);
+                    uStatus = userStatus;
+
+                    groupProfileImage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                            preiaImagineDinGalerie();
+                        }
+                    });
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    private void preiaImagineDinGalerie() {
+
+        Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        openGalleryIntent.putExtra("groupName", currentGroupName);
+        startActivityForResult(openGalleryIntent,1000);
+
+    }
+
+    private void incarcaImagineInCircleImage() {
+
+       StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+       StorageReference profileRef = storageReference.child("Groups").child("Profile").child(currentGroupID);
+
+       profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+           @Override
+           public void onSuccess(Uri uri) {
+
+               Picasso.get()
+                       .load(uri)
+                       .into(groupProfileImage);
+
+           }
+       });
+    }
+
+    private void initializare() {
 
         bottomNavigationView = findViewById(R.id.nav_menu_id);
 
@@ -122,6 +175,7 @@ public class GroupActivity extends AppCompatActivity {
                         Intent i = new Intent(GroupActivity.this, AddMembersActivity.class);
                         i.putExtra("GroupID",currentGroupID);
                         i.putExtra("GroupName",currentGroupName);
+                        i.putExtra("userStatus", uStatus);
 
                         startActivity(i);
 
@@ -131,36 +185,22 @@ public class GroupActivity extends AppCompatActivity {
         });
 
 
-//
-//
-//        btnIncarcaImagine.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                pornestePostActivity();
-//            }
-//        });
+        currentGroupName = getIntent().getExtras().get("groupName").toString();
+        currentGroupID = getIntent().getExtras().get("groupID").toString();
 
 
-//        StorageReference profileRef = storageReference.getRoot().child("Groups").child(currentGroupName).child("Profile");
-//        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//            @Override
-//            public void onSuccess(Uri uri) {
-//                Picasso.get().load(uri).into(groupProfileImage);
-//            }
-//        });
 
-        groupProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // open gallery
-
-                Intent openGalleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                openGalleryIntent.putExtra("groupName", currentGroupName);
-                startActivityForResult(openGalleryIntent,1000);
+        groupNameEditText = (TextView) findViewById(R.id.group_name_text);
+        groupProfileImage = (CircleImageView) findViewById(R.id.group_profile_image);
 
 
-            }
-        });
+        groupNameEditText.setText(currentGroupName);
+
+        fAuth = FirebaseAuth.getInstance();
+        storageReference = FirebaseStorage.getInstance().getReference();
+        postsSorageRef = FirebaseStorage.getInstance().getReference().child("Groups").child("Posts").child(currentGroupID);
+
+        userId = fAuth.getCurrentUser().getUid();
 
         mRecylerView = findViewById(R.id.recycler_view_images_group);
         mRecylerView.setHasFixedSize(true);
@@ -171,38 +211,12 @@ public class GroupActivity extends AppCompatActivity {
 
         mDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Groups Posts").child(currentGroupID);
 
-//        RetrievePosts();
-//
-//        mAdapter = new ImageAdapter(GroupActivity.this, mPosts);
-//
-//        mRecylerView.setAdapter(mAdapter);
+        uStatus = "member";
 
-        RetrieveImages();
+
     }
 
-    private void RetrievePosts() {
 
-        mDatabaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-
-                for(DataSnapshot postSnapshot : snapshot.getChildren()){
-
-                    Post post = postSnapshot.getValue(Post.class);
-                    mPosts.add(post);
-
-                    Log.v("GroupActivity", "test " + post.getImageUrl());
-                }
-
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
-            }
-        });
-    }
 
     private void RetrieveImages() {
 
@@ -239,8 +253,6 @@ public class GroupActivity extends AppCompatActivity {
             if(resultCode == Activity.RESULT_OK){
                 Uri imageUri = data.getData();
 
-                // profileImage.setImageURI(imageUri);
-
                 uploadImageToFirebase(imageUri);
 
 
@@ -250,7 +262,7 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     private void uploadImageToFirebase(Uri imageUri) {
-        final StorageReference fileRef = storageReference.getRoot().child("Groups").child(currentGroupName).child("Profile");
+        final StorageReference fileRef = storageReference.getRoot().child("Groups").child("Profile").child(currentGroupID);
 
         fileRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
