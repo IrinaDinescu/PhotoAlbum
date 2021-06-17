@@ -129,12 +129,21 @@ public class MainActivity extends AppCompatActivity {
         }
         if(item.getItemId() == R.id.main_settings_option){
 
+            sendUserToMyProfileActivity();
         }
         if(item.getItemId() == R.id.main_create_group_option){
             RequestNewGroup();
         }
 
          return true;
+    }
+
+    private void sendUserToMyProfileActivity() {
+
+        Intent myProfileIntent = new Intent(MainActivity.this, MyProfileActivity.class);
+        startActivity(myProfileIntent);
+
+
     }
 
     private void RequestNewGroup() {

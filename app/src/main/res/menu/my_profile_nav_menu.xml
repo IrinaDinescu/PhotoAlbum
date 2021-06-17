@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/my_profile_nav_menu_post"
+        android:title="Post"
+        android:icon="@drawable/ic_baseline_add_photo_alternate_24">
+    </item>
+
+    <item
+        android:id="@+id/my_profile_nav_menu_editor"
+        android:title="Editor"
+        android:icon="@drawable/ic_baseline_image_24">
+    </item>
+
+    <item
+        android:id="@+id/my_profile_nav_menu_settings"
+        android:title="Settings"
+        android:icon="@drawable/ic_baseline_settings_24">
+    </item>
+
+
+</menu>

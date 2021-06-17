@@ -17,6 +17,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
     }
 
     buildTypes {
@@ -50,6 +52,10 @@ dependencies {
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    implementation(name:'ds-photo-editor-sdk',ext:'aar')
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+
 
 
 

@@ -98,8 +98,6 @@ public class RegisterActivity extends AppCompatActivity {
                             RootRef.child("Users").child(currentUserID).child("profileImageUri").setValue("");
                             RootRef.child("Users").child(currentUserID).child("name").setValue(fullName);
                             RootRef.child("Users").child(currentUserID).child("email").setValue(email);
-                            RootRef.child("Users").child(currentUserID).child("groups").setValue("");
-                            RootRef.child("Users").child(currentUserID).child("friends").setValue("");
                             RootRef.child("Users").child(currentUserID).child("uid").setValue(currentUserID);
 
                             FirebaseUser fuser = fAuth.getCurrentUser();

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MyProfileActivity">
+
+    <LinearLayout
+        android:id="@+id/linear_layout_myProfile_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="10dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/my_profile_image"
+            android:layout_width="100dp"
+            android:layout_height="85dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/group_profile_pic"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp">
+
+
+            <TextView
+                android:id="@+id/myProfile_name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/group_profile_image"
+                android:layout_alignEnd="@+id/add_image"
+                android:text="Your Name"
+                android:textSize="24dp"
+                android:textStyle="bold"
+                android:textColor="@color/teal_700"/>
+
+        </LinearLayout>
+
+
+
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/linear_layout_myProfile_1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_images_myProfile"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"></androidx.recyclerview.widget.RecyclerView>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/nav_menu_id_profile"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/recycler_view_images_myProfile"
+            app:menu="@menu/my_profile_nav_menu">
+
+        </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>
