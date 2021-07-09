@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +18,11 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.photoalbum.clase.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -65,6 +69,24 @@ public class FindFriendsActivity extends AppCompatActivity
                     protected void onBindViewHolder(@NonNull @NotNull FindFriendsActivity.FindFriendsViewHolder holder, int position, @NonNull @NotNull User model) {
 
                         holder.userName.setText(model.getName());
+
+
+                        String imageName = model.getUid() + ".png";
+
+                        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                        StorageReference profileRef = storageReference.child("Users").child("Profile").child(imageName);
+
+                        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+
+                                Picasso.get()
+                                        .load(uri)
+                                        .into(holder.profileImage);
+
+                            }
+                        });
+
 //                        String imageUri = model.getProfileImageUri();
 //                        if(imageUri != ""){
 //                             Picasso.get().load(model.getProfileImageUri()).into(holder.profileImage);
@@ -119,4 +141,6 @@ public class FindFriendsActivity extends AppCompatActivity
             profileImage = itemView.findViewById(R.id.users_profile_image);
         }
     }
+
+
 }

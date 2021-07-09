@@ -56,6 +56,8 @@ dependencies {
     implementation(name:'ds-photo-editor-sdk',ext:'aar')
     implementation 'com.github.bumptech.glide:glide:4.12.0'
 
+    implementation 'com.github.d-max:spots-dialog:0.7@aar'
+
 
 
 

@@ -137,7 +137,7 @@ public class PostActivity extends AppCompatActivity {
 
                                     String imageDownloadURL = uri.toString();
 
-                                    Post post = new Post(pictureName,imageDownloadURL, publisherID, postID, userId, currentTime.toString());
+                                    Post post = new Post(pictureName,imageDownloadURL, publisherID, postID, userId, currentTime.toString(), postType);
 
                                     PostsRef.child(postID).setValue(post);
                                 }
@@ -225,8 +225,8 @@ public class PostActivity extends AppCompatActivity {
 
 
         postType = getIntent().getExtras().get("postType").toString();
-        publisherName = getIntent().getExtras().get("Name").toString();
-        publisherID = getIntent().getExtras().get("ID").toString();
+        Log.v("postType", postType);
+
 
         fAuth = FirebaseAuth.getInstance();
         userId = fAuth.getCurrentUser().getUid();
@@ -236,11 +236,14 @@ public class PostActivity extends AppCompatActivity {
 
 
         if(postType.equals("group")){
+            publisherName = getIntent().getExtras().get("Name").toString();
+            publisherID = getIntent().getExtras().get("ID").toString();
+
             PostsRef = RootRef.child("Groups Posts").child(publisherID);
             PostStorageRef = storageRef.child("Groups").child("Posts").child(publisherID);
         }else{
-            PostsRef = RootRef.child("Users Posts").child(publisherID);
-            PostStorageRef = storageRef.child("Users").child("Posts").child(publisherID);
+            PostsRef = RootRef.child("Users Posts").child(userId);
+            PostStorageRef = storageRef.child("Users").child("Posts").child(userId);
         }
 
 

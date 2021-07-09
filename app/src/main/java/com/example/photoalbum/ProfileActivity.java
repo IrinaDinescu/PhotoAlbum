@@ -3,6 +3,7 @@ package com.example.photoalbum;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -17,6 +19,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -60,6 +64,8 @@ public class ProfileActivity extends AppCompatActivity {
         DeclineFriendRequestButton = (Button) findViewById(R.id.decline_friend_button);
         Current_State = "new";
 
+
+
         RetrieveUserInfo();
 
 
@@ -76,16 +82,26 @@ public class ProfileActivity extends AppCompatActivity {
 
                     String userName = snapshot.child("name").getValue().toString();
 
-                    String userImage = snapshot.child("profileImageUri").getValue().toString();
+
+                    FirebaseStorage.getInstance().getReference();
 
 
+                    String imageName = receiverUserID + ".png";
 
-                    if(userImage.length() > 0){
+                    StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                    StorageReference profileRef = storageReference.child("Users").child("Profile").child(imageName);
 
-                        Log.v("user_image", "test " +  userImage.toString());
-                        Picasso.get().load(userImage).into(userProfileImage);
+                    profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
 
-                    }
+                            Picasso.get()
+                                    .load(uri)
+                                    .into(userProfileImage);
+
+                        }
+                    });
+
                     userProfileName.setText(userName);
 
                     ManageFriendRequest();
@@ -105,6 +121,8 @@ public class ProfileActivity extends AppCompatActivity {
 
             }
         });
+
+
 
     }
 

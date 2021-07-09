@@ -8,18 +8,19 @@ public class Post {
     private String postId;
     private String uId;
     private String date;
-
+    private String postType;
 
     public Post() {
     }
 
-    public Post(String pictureName, String imageUrl, String publisherId, String postId, String uId, String date) {
+    public Post(String pictureName, String imageUrl, String publisherId, String postId, String uId, String date, String postType) {
         this.imageUrl = imageUrl;
         this.publisherId = publisherId;
         this.postId = postId;
         this.uId = uId;
         this.date = date;
         this.pictureName = pictureName;
+        this.postType = postType;
     }
 
     public String getPictureName() {
@@ -68,5 +69,13 @@ public class Post {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getPostType() {
+        return postType;
+    }
+
+    public void setPostType(String postType) {
+        this.postType = postType;
     }
 }

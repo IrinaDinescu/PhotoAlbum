@@ -220,6 +220,8 @@ public class GroupActivity extends AppCompatActivity {
 
     private void RetrieveImages() {
 
+        mPosts.clear();
+
         mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
@@ -227,7 +229,17 @@ public class GroupActivity extends AppCompatActivity {
                 for(DataSnapshot postSnapshot : snapshot.getChildren()){
 
                     Post post = postSnapshot.getValue(Post.class);
-                    mPosts.add(post);
+
+                    boolean isOk = true;
+
+                    for(Post p: mPosts){
+                        if(post.getPostId().equals(p.getPostId())){
+                            isOk = false;
+                        }
+                    }
+                    if(isOk){
+                        mPosts.add(post);
+                    }
                 }
 
                 mAdapter = new ImageAdapter(GroupActivity.this, mPosts);

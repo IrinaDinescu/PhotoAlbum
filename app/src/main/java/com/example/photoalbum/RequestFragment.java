@@ -2,6 +2,7 @@ package com.example.photoalbum;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import com.example.photoalbum.clase.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -30,6 +32,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +54,8 @@ public class RequestFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     private String currentUserId;
+
+    private StorageReference storageReference;
 
 
     public RequestFragment() {
@@ -82,6 +88,9 @@ public class RequestFragment extends Fragment {
 
         myRequestList = (RecyclerView) RequestFragmnetView.findViewById(R.id.friend_request_list);
         myRequestList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        storageReference = FirebaseStorage.getInstance().getReference();
+
 
 
 
@@ -145,6 +154,22 @@ public class RequestFragment extends Fragment {
 
                                                 final String requestUserName = snapshot.child("name").getValue().toString();
                                                 holder.userName.setText(requestUserName);
+
+                                                String imageName = list_user_id + ".png";
+
+                                                StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                                                Log.v("Requests", imageName);
+                                                StorageReference profileRef = storageReference.child("Users").child("Profile").child(imageName);
+                                                profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                    @Override
+                                                    public void onSuccess(Uri uri) {
+
+                                                        Picasso.get()
+                                                                .load(uri)
+                                                                .into(holder.profileImage);
+
+                                                    }
+                                                });
 
                                                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                                                     @Override

@@ -1,5 +1,6 @@
 package com.example.photoalbum;
 
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,12 +16,15 @@ import android.widget.TextView;
 import com.example.photoalbum.clase.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
@@ -100,23 +104,27 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
-                        if(snapshot.hasChild("profileImageUri")){
-
-                            String userImage = snapshot.child("profileImageUri").getValue().toString();
                             String userName = snapshot.child("name").getValue().toString();
 
+                        String imageName = userIDs + ".png";
+
+                        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                        StorageReference profileRef = storageReference.child("Users").child("Profile").child(imageName);
+
+                            profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+
+                                    Picasso.get()
+                                            .load(uri)
+                                            .into(holder.profileImage);
+
+                                }
+                            });
+
                             holder.userName.setText(userName);
-                            if(userImage.length() > 0){
 
-                                Picasso.get().load(userImage).placeholder(R.drawable.user_profile_image).into(holder.profileImage);
-                            }
-                        }else{
 
-                            String userName = snapshot.child("name").getValue().toString();
-
-                            holder.userName.setText(userName);
-
-                        }
 
                     }
 

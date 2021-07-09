@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +16,15 @@ import android.widget.TextView;
 import com.example.photoalbum.clase.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -73,6 +78,22 @@ public class MembersActivity extends AppCompatActivity {
                         String uid = model.getUid().toString();
                         DatabaseReference ref = RootRef.child("Memberships").child(uid).child(currentGroupID);
 
+                        String imageName = model.getUid() + ".png";
+
+                        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                        StorageReference profileRef = storageReference.child("Users").child("Profile").child(imageName);
+
+                        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+
+                                Picasso.get()
+                                        .load(uri)
+                                        .into(holder.profileImage);
+
+                            }
+                        });
+
 
 
                         ValueEventListener eventListener = new ValueEventListener() {
@@ -82,6 +103,8 @@ public class MembersActivity extends AppCompatActivity {
                                 if(!snapshot.exists()){
                                     holder.Layout_hide();
                                 }else{
+
+
 
                                     String status = snapshot.child("status").getValue().toString();
                                     holder.status.setText(status);
