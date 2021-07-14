@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -11,12 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.photoalbum.clase.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,9 +29,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.NotNull;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.squareup.okhttp.internal.DiskLruCache;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -92,7 +99,8 @@ public class AddMembersActivity extends AppCompatActivity {
 
                 DatabaseReference membershipRef = RootRef.child("Memberships").child(memberID).child(currentGroupID);
 
-                ValueEventListener eventListener = new ValueEventListener() {
+                membershipRef.addValueEventListener(new ValueEventListener() {
+
                     @Override
                     public void onDataChange(@androidx.annotation.NonNull @org.jetbrains.annotations.NotNull DataSnapshot snapshot) {
 
@@ -102,6 +110,8 @@ public class AddMembersActivity extends AppCompatActivity {
                             membershipRef.child("status").setValue("member");
 
                         }else{
+
+
                         }
                     }
 
@@ -109,8 +119,10 @@ public class AddMembersActivity extends AppCompatActivity {
                     public void onCancelled(@androidx.annotation.NonNull @org.jetbrains.annotations.NotNull DatabaseError error) {
 
                     }
-                };
-                membershipRef.addValueEventListener(eventListener);
+                });
+
+//                membershipRef.addValueEventListener(eventListener);
+//                membershipRef.removeEventListener(eventListener);
 
                 Toast.makeText(AddMembersActivity.this, "Membrii adaugati cu success!", Toast.LENGTH_SHORT).show();
              //   membershipRef.removeEventListener(eventListener);
@@ -175,54 +187,92 @@ public class AddMembersActivity extends AppCompatActivity {
                      @Override
                      public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
-                         if(snapshot.hasChild("profileImageUri")){
+                         if(snapshot.exists() && snapshot != null) {
 
-                             String userImage = snapshot.child("profileImageUri").getValue().toString();
-                             String userName = snapshot.child("name").getValue().toString();
+                             Object potentialMemberIDsnapshot = snapshot.child("uid").getValue();
+                             if(potentialMemberIDsnapshot != null){
 
-                             holder.userName.setText(userName);
-                             if(userImage.length() > 0){
+                                 String potentialMemberID = potentialMemberIDsnapshot.toString();
+                                 String imageName = potentialMemberID + ".png";
 
-                                 Picasso.get().load(userImage).placeholder(R.drawable.user_profile_image).into(holder.profileImage);
+
+                                 DatabaseReference groupMembershipRefForUser = FirebaseDatabase.getInstance().getReference().child("Memberships").child(potentialMemberID);
+
+                                 Object userNameSnap = snapshot.child("name").getValue();
+
+                                 if(userNameSnap != null){
+
+                                     String userName = userNameSnap.toString();
+
+                                     if (groupMembershipRefForUser != null) {
+
+                                         DatabaseReference thisGroupMembershipRef = groupMembershipRefForUser.child(currentGroupID);
+
+                                         thisGroupMembershipRef.addValueEventListener(new ValueEventListener() {
+                                             @Override
+                                             public void onDataChange(@androidx.annotation.NonNull @org.jetbrains.annotations.NotNull DataSnapshot snapshot) {
+
+                                                 if (!snapshot.exists()) {
+
+                                                     Log.v("AddMemberProfile", imageName);
+
+                                                     StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                                                     StorageReference profileRef = storageReference.child("Users").child("Profile").child(imageName);
+
+                                                     profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                         @Override
+                                                         public void onSuccess(Uri uri) {
+
+                                                             Picasso.get()
+                                                                     .load(uri)
+                                                                     .into(holder.profileImage);
+
+                                                         }
+                                                     });
+
+                                                     holder.userName.setText(userName);
+
+
+                                                     holder.checkBox.setOnClickListener(new View.OnClickListener() {
+                                                         @Override
+                                                         public void onClick(View v) {
+
+                                                             if (holder.checkBox.isChecked()) {
+
+                                                                 String user_to_add_ID = getRef(position).getKey();
+                                                                 membersToAdd.add(user_to_add_ID);
+
+                                                             }
+
+                                                             if (!holder.checkBox.isChecked()) {
+
+                                                                 String user_to_add_ID = getRef(position).getKey();
+                                                                 membersToAdd.remove(user_to_add_ID);
+
+                                                             }
+                                                         }
+                                                     });
+
+                                                 } else {
+
+                                                     holder.Layout_hide();
+                                                 }
+                                             }
+
+                                             @Override
+                                             public void onCancelled(@androidx.annotation.NonNull @org.jetbrains.annotations.NotNull DatabaseError error) {
+
+                                             }
+                                         });
+
+
+                                     }
+
+                                 }
                              }
-                         }else{
 
-                             String userName = snapshot.child("name").getValue().toString();
-
-                             holder.userName.setText(userName);
 
                          }
-
-                         holder.checkBox.setOnClickListener(new View.OnClickListener() {
-                             @Override
-                             public void onClick(View v) {
-
-                                 if( holder.checkBox.isChecked()){
-
-                                     String user_to_add_ID =  getRef(position).getKey();
-                                 //    Toast.makeText(AddMembersActivity.this, "Add " + user_to_add_ID, Toast.LENGTH_SHORT ).show();
-
-                                     membersToAdd.add(user_to_add_ID);
-
-                                 }
-
-                                 if( !holder.checkBox.isChecked()){
-
-                                     String user_to_add_ID =  getRef(position).getKey();
-                                  //   Toast.makeText(AddMembersActivity.this, "Remove " + user_to_add_ID, Toast.LENGTH_SHORT ).show();
-
-                                     membersToAdd.remove(user_to_add_ID);
-
-                                 }
-
-
-
-
-
-
-                             }
-                         });
-
                      }
 
                      @Override
@@ -258,6 +308,10 @@ public class AddMembersActivity extends AppCompatActivity {
 
     public static class FriendsViewHolder extends RecyclerView.ViewHolder{
 
+
+        final LinearLayout layout;
+        final LinearLayout.LayoutParams params;
+
         TextView userName;
         CircleImageView profileImage;
         CheckBox checkBox;
@@ -266,6 +320,10 @@ public class AddMembersActivity extends AppCompatActivity {
 
             super(itemView);
 
+            layout =(LinearLayout)itemView.findViewById(R.id.users_linear_layout);
+            params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+
             userName = itemView.findViewById(R.id.users_profile_name);
             profileImage = itemView.findViewById(R.id.users_profile_image);
             checkBox = itemView.findViewById(R.id.user_is_checked);
@@ -273,5 +331,14 @@ public class AddMembersActivity extends AppCompatActivity {
 
 
         }
+
+        public void Layout_hide() {
+            params.height = 0;
+            //itemView.setLayoutParams(params); //This One.
+            layout.setLayoutParams(params);   //Or This one.
+
+        }
     }
+
+
 }

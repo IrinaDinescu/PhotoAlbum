@@ -122,12 +122,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             @Override
             public void onClick(View v) {
 
-//                Toast.makeText(mContext, "Download", Toast.LENGTH_LONG).show();
-//
-//                getTarget(currentPost.getImageUrl());
 
-//                if(ActivityCompat.checkSelfPermission(this,
-//                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
 
                 AlertDialog dialog = new SpotsDialog(mContext);
                 dialog.show();

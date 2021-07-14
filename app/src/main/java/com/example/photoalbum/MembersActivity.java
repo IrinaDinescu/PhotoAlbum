@@ -5,18 +5,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.photoalbum.clase.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +46,11 @@ public class MembersActivity extends AppCompatActivity {
 
     private DatabaseReference UserRef;
 
+    private String currentUserID;
+    private String currentUserGroupStatus;
+
+    private String selectedMemberStatus = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +66,35 @@ public class MembersActivity extends AppCompatActivity {
 
         currentGroupID = getIntent().getExtras().get("GroupID").toString();
 
+
+
         UserRef = FirebaseDatabase.getInstance().getReference().child("Users");
+
+
+        currentUserID = FirebaseAuth.getInstance().getUid();
+
+        DatabaseReference userMembershipsRef = FirebaseDatabase.getInstance().getReference().child("Memberships").child(currentUserID).child(currentGroupID).child("status");
+
+        userMembershipsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                currentUserGroupStatus = snapshot.getValue().toString().trim();
+                Log.v("UserStatusINGroup", currentUserGroupStatus);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+
+
+
+
+
+
 
 
     }
@@ -96,6 +138,21 @@ public class MembersActivity extends AppCompatActivity {
 
 
 
+                        holder.parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View v) {
+
+                                Toast.makeText(MembersActivity.this, "LongClickTest", Toast.LENGTH_SHORT).show();
+
+
+
+
+                                MyCustomAlertDialog(uid, model.getName(), profileRef );
+
+                                return false;
+                            }
+                        });
+
                         ValueEventListener eventListener = new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
@@ -106,8 +163,14 @@ public class MembersActivity extends AppCompatActivity {
 
 
 
-                                    String status = snapshot.child("status").getValue().toString();
-                                    holder.status.setText(status);
+
+                                    if(snapshot.child("status").exists()){
+
+                                        String status = snapshot.child("status").getValue().toString();
+                                        holder.status.setText(status);
+                                    }
+
+
                                 }
                             }
 
@@ -138,10 +201,144 @@ public class MembersActivity extends AppCompatActivity {
 
     }
 
+    private void MyCustomAlertDialog(String uid, String name, StorageReference profileRef) {
+
+        final Dialog MyDialog = new Dialog(MembersActivity.this);
+        MyDialog.setContentView(R.layout.customdialog_members_onlongclick);
+
+        Window window = MyDialog.getWindow();
+        if(window != null){
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(window.getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(lp);
+        }
+
+        CircleImageView profileImage = (CircleImageView) MyDialog.findViewById(R.id.memberdialog_profileImage);
+        TextView tv_UserName = (TextView) MyDialog.findViewById(R.id.memberdialog_tv_userName);
+        TextView tv_SeeProfile = (TextView) MyDialog.findViewById(R.id.memberdialog_tv_seeProfile);
+        TextView tv_MakeAdmin = (TextView) MyDialog.findViewById(R.id.memberdialog_tv_makeAdmin);
+        TextView tv_DeleteMember = (TextView) MyDialog.findViewById(R.id.memberdialog_tv_deleteMember);
+
+        profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+
+                Picasso.get()
+                        .load(uri)
+                        .into(profileImage);
+
+            }
+        });
+
+        tv_SeeProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent profileIntent = new Intent(MembersActivity.this, ProfileActivity.class);
+                profileIntent.putExtra("visit_user_id", uid);
+                startActivity(profileIntent);
+
+
+            }
+        });
+
+        tv_UserName.setText(name);
+
+        if(!currentUserGroupStatus.equals("admin")){
+
+            tv_MakeAdmin.setVisibility(View.INVISIBLE);
+            tv_DeleteMember.setVisibility(View.INVISIBLE);
+        }else{
+
+            DatabaseReference memberStatusRef = FirebaseDatabase.getInstance().getReference().child("Memberships").child(uid).child(currentGroupID).child("status");
+
+            memberStatusRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+
+                    if(snapshot.exists()){
+                        selectedMemberStatus = snapshot.getValue().toString();
+
+                        Log.v("SatusTestUid", uid);
+
+                        Log.v("StatusTest", "Succes " + selectedMemberStatus);
+
+
+                        if(selectedMemberStatus.equals("admin")){
+
+                            tv_MakeAdmin.setText(" Remove Admin Status");
+                        }
+
+                    }else{
+
+                        Log.v("SatusTestUid", uid);
+
+                        Log.v("StatusTest", "Failed");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                }
+            });
+
+
+        }
+
+
+        tv_DeleteMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                new AlertDialog.Builder(MembersActivity.this)
+                        .setTitle("Delete entry")
+                        .setMessage("Are you sure you want to delete this entry?")
+
+
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                DatabaseReference membershipRef = FirebaseDatabase.getInstance().getReference().child("Memberships").child(uid).child(currentGroupID);
+                                membershipRef.removeValue();
+
+                                Toast.makeText(MembersActivity.this, "Member Succesfully Deleted!", Toast.LENGTH_SHORT).show();
+
+                            }
+                        })
+
+                        // A null listener allows the button to dismiss the dialog and take no further action.
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
+
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+        MyDialog.show();
+
+    }
+
     public static class MembersViewHolder extends RecyclerView.ViewHolder{
 
         final LinearLayout layout;
         final LinearLayout.LayoutParams params;
+
+        LinearLayout parentLayout ;
 
         TextView userName;
         TextView status;
@@ -160,6 +357,8 @@ public class MembersActivity extends AppCompatActivity {
             userName = itemView.findViewById(R.id.member_profile_name);
             profileImage = itemView.findViewById(R.id.member_profile_image);
             status = itemView.findViewById(R.id.member_status);
+
+            parentLayout = itemView.findViewById(R.id.members_display_layoutTest2);
 
         }
 

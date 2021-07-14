@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/memberdialog_profileImage"
+            android:layout_width="125dp"
+            android:layout_height="125dp"
+            android:src="@drawable/user_profile_image_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/memberdialog_tv_userName"
+            android:layout_marginTop="5dp"
+            android:text="Nume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="@color/YellowOrangeColorWheel"
+            app:layout_constraintEnd_toEndOf="@id/memberdialog_profileImage"
+            app:layout_constraintStart_toStartOf="@id/memberdialog_profileImage"
+            app:layout_constraintTop_toBottomOf="@id/memberdialog_profileImage"/>
+
+        <TextView
+            android:id="@+id/memberdialog_tv_seeProfile"
+            android:layout_marginTop="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text=" See Profile"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/memberdialog_profileImage">
+        </TextView>
+
+        <TextView
+            android:id="@+id/memberdialog_tv_makeAdmin"
+            android:layout_marginTop="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text=" Make Admin"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/memberdialog_tv_seeProfile">
+        </TextView>
+
+        <TextView
+            android:id="@+id/memberdialog_tv_deleteMember"
+            android:layout_marginTop="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text=" Delete Member"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/memberdialog_tv_makeAdmin">
+        </TextView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
+
+
+
+
+</LinearLayout>
