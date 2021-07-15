@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -146,58 +147,30 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             @Override
             public void onClick(View v) {
 
-                String postId = currentPost.getPostId();
-
-                String postType;
-                if(currentPost.getPostType() != null){
-                    postType = currentPost.getPostType().toString().trim();
-                    if(postType.equals("user")){
-                        String uid = FirebaseAuth.getInstance().getUid().toString();
-                        StorageReference postRef = FirebaseStorage.getInstance().getReference().child("Users").child("Posts").child(uid).child(currentPost.getPictureName());
-
-                        postRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setCancelable(true);
+                builder.setTitle("Delete Image");
+                builder.setMessage("Are you sure you want to delete selected image?");
+                builder.setPositiveButton("Confirm",
+                        new DialogInterface.OnClickListener() {
                             @Override
-                            public void onSuccess(Void unused) {
+                            public void onClick(DialogInterface dialog, int which) {
 
-                                DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("Users Posts").child(uid).child(currentPost.getPostId());
-
-                                dataRef.removeValue();
-
-                                Toast.makeText(mContext, "Image deleted!", Toast.LENGTH_SHORT).show();
-
-                                MyDialog.dismiss();
-
+                                deleteImage(currentPost, MyDialog);
                             }
                         });
+                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
                     }
+                });
 
-                    if(postType.equals("group")){
-
-                        Log.v("PostType", postType);
-
-                        String publisherId = currentPost.getPublisherId();
-                        StorageReference postRef = FirebaseStorage.getInstance().getReference().child("Groups").child("Posts").child(publisherId).child(currentPost.getPictureName());
-
-                        postRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-
-                                DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("Groups Posts").child(publisherId).child(currentPost.getPostId());
-
-                                dataRef.removeValue();
-
-                                Toast.makeText(mContext, "Image deleted!", Toast.LENGTH_SHORT).show();
-
-                                MyDialog.dismiss();
+                AlertDialog dialog = builder.create();
+                dialog.show();
 
 
 
-                            }
-                        });
-                    }
 
-
-                }
 
             }
         });
@@ -215,6 +188,62 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         MyDialog.show();
 
 
+    }
+
+    private void deleteImage(Post currentPost, Dialog MyDialog) {
+
+        String postId = currentPost.getPostId();
+
+        String postType;
+        if(currentPost.getPostType() != null){
+            postType = currentPost.getPostType().toString().trim();
+            if(postType.equals("user")){
+                String uid = FirebaseAuth.getInstance().getUid().toString();
+                StorageReference postRef = FirebaseStorage.getInstance().getReference().child("Users").child("Posts").child(uid).child(currentPost.getPictureName());
+
+                postRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                        DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("Users Posts").child(uid).child(currentPost.getPostId());
+
+                        dataRef.removeValue();
+
+                        Toast.makeText(mContext, "Image deleted!", Toast.LENGTH_SHORT).show();
+
+                        MyDialog.dismiss();
+
+                    }
+                });
+            }
+
+            if(postType.equals("group")){
+
+                Log.v("PostType", postType);
+
+                String publisherId = currentPost.getPublisherId();
+                StorageReference postRef = FirebaseStorage.getInstance().getReference().child("Groups").child("Posts").child(publisherId).child(currentPost.getPictureName());
+
+                postRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                        DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("Groups Posts").child(publisherId).child(currentPost.getPostId());
+
+                        dataRef.removeValue();
+
+                        Toast.makeText(mContext, "Image deleted!", Toast.LENGTH_SHORT).show();
+
+                        MyDialog.dismiss();
+
+
+
+                    }
+                });
+            }
+
+
+        }
     }
 
     @Override

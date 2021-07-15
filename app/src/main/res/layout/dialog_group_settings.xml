@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:id="@+id/dialog_group_settingsTest2">
+
+    <TextView
+        android:layout_marginTop="3dp"
+        android:id="@+id/dialog_group_settings_tv_leaveGroup"
+        android:layout_marginStart="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textSize="24dp"
+        android:text="Leave Group"
+        android:textStyle="bold"
+        android:textColor="@color/black">
+    </TextView>
+
+
+    <TextView
+        android:layout_marginTop="2dp"
+        android:id="@+id/dialog_group_settings_tv_changeName"
+        android:layout_marginStart="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textSize="24dp"
+        android:text="Change Group Name"
+        android:textStyle="bold"
+        android:textColor="@color/black">
+    </TextView>
+
+
+    <TextView
+        android:layout_marginTop="2dp"
+        android:id="@+id/dialog_group_settings_tv_deleteGroup"
+        android:layout_marginStart="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textSize="24dp"
+        android:text="Delete Group"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginBottom="20dp">
+    </TextView>
+
+</LinearLayout>

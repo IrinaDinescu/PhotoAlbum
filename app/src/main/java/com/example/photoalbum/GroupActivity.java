@@ -6,13 +6,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -69,6 +75,10 @@ public class GroupActivity extends AppCompatActivity {
 
     private String uStatus;
 
+    private  boolean isDeleted = false;
+
+    private boolean isShouldBeDeleted = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,22 +104,25 @@ public class GroupActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
-                String userStatus = snapshot.child("status").getValue().toString().trim();
+                if(snapshot.child("status").exists()){
 
-                if(userStatus.equals("admin")){
+                    String userStatus = snapshot.child("status").getValue().toString().trim();
 
-                    uStatus = userStatus;
+                    if(userStatus.equals("admin")){
 
-                    groupProfileImage.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
+                        uStatus = userStatus;
 
-                            preiaImagineDinGalerie();
-                        }
-                    });
+                        groupProfileImage.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                preiaImagineDinGalerie();
+                            }
+                        });
+
+                    }
 
                 }
-
             }
 
             @Override
@@ -154,7 +167,9 @@ public class GroupActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_menu_settings:
-                        Toast.makeText(GroupActivity.this, "Settings", Toast.LENGTH_SHORT).show();
+
+                        myCystomDialog();
+
                         break;
                     case R.id.nav_menu_members:
 
@@ -216,7 +231,280 @@ public class GroupActivity extends AppCompatActivity {
 
     }
 
+    private void myCystomDialog() {
 
+        final Dialog myDialog = new Dialog(GroupActivity.this);
+        myDialog.setContentView(R.layout.dialog_group_settings);
+
+        Window window = myDialog.getWindow();
+        if(window != null){
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(window.getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(lp);
+        }
+
+        TextView tv_leaveGroup = (TextView) myDialog.findViewById(R.id.dialog_group_settings_tv_leaveGroup);
+        TextView tv_changeGroupName = (TextView) myDialog.findViewById(R.id.dialog_group_settings_tv_changeName);
+        TextView tv_deleteGroup = (TextView) myDialog.findViewById(R.id.dialog_group_settings_tv_deleteGroup);
+
+
+        if(!uStatus.equals("admin")){
+
+            tv_changeGroupName.setVisibility(View.INVISIBLE);
+            tv_deleteGroup.setVisibility(View.INVISIBLE);
+
+        }
+
+
+
+
+        tv_leaveGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(GroupActivity.this);
+                builder.setCancelable(true);
+                builder.setTitle("Leave Group");
+                builder.setMessage("Are you sure you want to leave the group?");
+                builder.setPositiveButton("Confirm",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                parasesteGrup();
+                                finish();
+                            }
+                        });
+                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+            }
+        });
+
+        tv_changeGroupName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+                AlertDialog.Builder alert = new AlertDialog.Builder(GroupActivity.this);
+
+
+                final EditText edittext = new EditText(GroupActivity.this);
+                alert.setMessage("Enter a new Group Name");
+                alert.setTitle("Change Current Group Name");
+
+                alert.setView(edittext);
+
+                alert.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        String YouEditTextValue = edittext.getText().toString();
+
+                        DatabaseReference groupNameRef = FirebaseDatabase.getInstance().getReference().child("Groups").child(currentGroupID).child("name");
+
+                        groupNameRef.setValue(YouEditTextValue);
+
+                        currentGroupName = YouEditTextValue;
+
+                        groupNameEditText.setText(YouEditTextValue);
+
+                        Toast.makeText(GroupActivity.this, YouEditTextValue, Toast.LENGTH_SHORT).show();
+
+
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+
+                alert.show();
+            }
+        });
+
+        tv_deleteGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(GroupActivity.this);
+                builder.setCancelable(true);
+                builder.setTitle("Delete Group");
+                builder.setMessage("Are you sure you want to delete " + currentGroupName + " group?");
+                builder.setPositiveButton("Confirm",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                stergeGrup();
+                            }
+                        });
+                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+
+            }
+        });
+
+        myDialog.show();
+    }
+
+    private void parasesteGrup() {
+
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference membershipsRef = rootRef.child("Memberships");
+
+
+        membershipsRef.child(userId).child(currentGroupID).removeValue();
+
+        isShouldBeDeleted = true;
+
+        membershipsRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                    for(DataSnapshot ds : snapshot.getChildren()){
+
+                        if(ds.child(currentGroupID).exists()){
+
+                            isShouldBeDeleted = false;
+
+                        }
+
+                    }
+
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                }
+            });
+
+    }
+
+    private void stergeGrup() {
+
+        //sterge membershipurile pt fiecare utilizator
+        DatabaseReference membershipsRef = FirebaseDatabase.getInstance().getReference().child("Memberships");
+
+        membershipsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                for(DataSnapshot ds : snapshot.getChildren()){
+
+                    Log.v("DeleteGroupTest", ds.getKey());
+
+                    if(ds.child(currentGroupID).exists()){
+
+                        ds.child(currentGroupID).getRef().removeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+
+// Sterge Postarile din folderul aferent grupului
+        StorageReference currentGroupStoragePostsRef = FirebaseStorage.getInstance().getReference().child("Groups").child("Posts").child(currentGroupID);
+
+        if(currentGroupStoragePostsRef != null){
+
+            DatabaseReference groupPostsRef = FirebaseDatabase.getInstance().getReference().child("Groups Posts").child(currentGroupID);
+
+            if(groupPostsRef != null){
+
+
+                groupPostsRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                        for(DataSnapshot ds : snapshot.getChildren()){
+
+                            if(ds.child("pictureName").exists()){
+
+                                String pictureName = ds.child("pictureName").getValue().toString();
+                                StorageReference storagePostRef = currentGroupStoragePostsRef.child(pictureName);
+
+                                storagePostRef.delete();
+
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                    }
+                });
+
+            }
+
+            groupPostsRef.removeValue();
+
+
+            // currentGroupStoragePostsRef.delete();
+        }
+
+
+        // Sterge poza de profil a grupului
+        StorageReference currentGroupStorageProfilePicRef = FirebaseStorage.getInstance().getReference().child("Groups").child("Profile").child(currentGroupID);
+
+        if(currentGroupStorageProfilePicRef != null){
+
+            currentGroupStorageProfilePicRef.delete();
+        }
+
+        isDeleted = true;
+
+
+
+
+        finish();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+       if(isShouldBeDeleted){
+
+           stergeGrup();
+       }
+
+       if(isDeleted){
+
+           // Sterge referinta din baza de date pentru grupul curent
+           DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Groups").child(currentGroupID);
+
+           if(databaseReference != null){
+
+               databaseReference.removeValue();
+           }
+       }
+    }
 
     private void RetrieveImages() {
 

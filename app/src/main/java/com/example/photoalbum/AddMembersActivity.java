@@ -62,6 +62,12 @@ public class AddMembersActivity extends AppCompatActivity {
 
     private String userStatus;
 
+    private boolean isMembriiAdaugati = false;
+
+    private ValueEventListener listeners[];
+
+    private  int k = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,14 +99,19 @@ public class AddMembersActivity extends AppCompatActivity {
 
     private void adaugaMembriiGrup() {
 
+        listeners = new ValueEventListener[membersToAdd.size()];
+
         if(membersToAdd.size() > 0){
+
+            isMembriiAdaugati = true;
+
+            int k = 0;
 
             for(String memberID : membersToAdd){
 
                 DatabaseReference membershipRef = RootRef.child("Memberships").child(memberID).child(currentGroupID);
 
-                membershipRef.addValueEventListener(new ValueEventListener() {
-
+                ValueEventListener listener = new ValueEventListener() {
                     @Override
                     public void onDataChange(@androidx.annotation.NonNull @org.jetbrains.annotations.NotNull DataSnapshot snapshot) {
 
@@ -111,22 +122,24 @@ public class AddMembersActivity extends AppCompatActivity {
 
                         }else{
 
-
                         }
+
                     }
 
                     @Override
                     public void onCancelled(@androidx.annotation.NonNull @org.jetbrains.annotations.NotNull DatabaseError error) {
 
                     }
-                });
+                };
 
-//                membershipRef.addValueEventListener(eventListener);
-//                membershipRef.removeEventListener(eventListener);
+                listeners[k] = listener;
+                k++;
+                membershipRef.addValueEventListener(listener);
+
 
                 Toast.makeText(AddMembersActivity.this, "Membrii adaugati cu success!", Toast.LENGTH_SHORT).show();
-             //   membershipRef.removeEventListener(eventListener);
 
+                finish();
 
             }
 
@@ -134,7 +147,28 @@ public class AddMembersActivity extends AppCompatActivity {
             Toast.makeText(AddMembersActivity.this, "Nu ati selectat niciun prieten!", Toast.LENGTH_SHORT).show();
         }
 
+    }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(membersToAdd != null){
+
+            for(String memberID : membersToAdd){
+
+                DatabaseReference membershipRef = RootRef.child("Memberships").child(memberID).child(currentGroupID);
+
+                if(listeners != null){
+
+                    membershipRef.removeEventListener(listeners[k]);
+
+                }
+
+            }
+
+        }
 
 
     }

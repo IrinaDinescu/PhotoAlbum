@@ -82,7 +82,7 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-                progressBar.setVisibility(View.VISIBLE);
+               // progressBar.setVisibility(View.VISIBLE);
 
                 // register the user in firebase
 

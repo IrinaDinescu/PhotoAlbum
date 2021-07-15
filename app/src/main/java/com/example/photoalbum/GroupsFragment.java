@@ -194,13 +194,18 @@ public class GroupsFragment extends Fragment {
                             @Override
                             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
-                                String currentGroupName = snapshot.child("name").getValue().toString();
+                                if(snapshot.exists()){
 
-                                Intent GroupIntent = new Intent(getContext(), GroupActivity.class);
-                                GroupIntent.putExtra("groupName", currentGroupName);
-                                GroupIntent.putExtra("groupID", currentGroupRef.getKey().toString());
+                                    String currentGroupName = snapshot.child("name").getValue().toString();
 
-                                startActivity(GroupIntent);
+                                    Intent GroupIntent = new Intent(getContext(), GroupActivity.class);
+                                    GroupIntent.putExtra("groupName", currentGroupName);
+                                    GroupIntent.putExtra("groupID", currentGroupRef.getKey().toString());
+
+                                    startActivity(GroupIntent);
+
+                                }
+
                             }
 
                             @Override

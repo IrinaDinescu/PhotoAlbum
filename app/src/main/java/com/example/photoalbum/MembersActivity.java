@@ -1,6 +1,7 @@
 package com.example.photoalbum;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +31,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -79,8 +82,11 @@ public class MembersActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
-                currentUserGroupStatus = snapshot.getValue().toString().trim();
-                Log.v("UserStatusINGroup", currentUserGroupStatus);
+                if(snapshot.exists()){
+
+                    currentUserGroupStatus = snapshot.getValue().toString().trim();
+                }
+
 
             }
 
@@ -239,6 +245,107 @@ public class MembersActivity extends AppCompatActivity {
                 Intent profileIntent = new Intent(MembersActivity.this, ProfileActivity.class);
                 profileIntent.putExtra("visit_user_id", uid);
                 startActivity(profileIntent);
+
+
+            }
+        });
+
+        tv_MakeAdmin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                DatabaseReference membershipsRef = FirebaseDatabase.getInstance().getReference();
+                DatabaseReference userMembershipRef = membershipsRef.child(uid).child(currentGroupID);
+
+//                String status = "admin";
+//
+//                userMembershipRef.child("status").setValue(status).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void unused) {
+//
+//                        Toast.makeText(MembersActivity.this, name + " is now Admin!", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+
+                userMembershipRef.child("status").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                        Log.v("Snapshop", uid);
+                        Log.v("Snapshop", snapshot.getValue().toString());
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                    }
+                });
+
+
+
+                MyDialog.dismiss();
+
+
+
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MembersActivity.this);
+//                builder.setCancelable(true);
+//                builder.setTitle("Make Admin");
+//                builder.setMessage("Make " + name + " Admin?");
+//                builder.setPositiveButton("Confirm",
+//                        new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//
+//
+//                                DatabaseReference membershipsRef = FirebaseDatabase.getInstance().getReference();
+//                                DatabaseReference userMembershipRef = membershipsRef.child(uid).child(currentGroupID);
+//
+//                                userMembershipRef.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                    @Override
+//                                    public void onSuccess(Void unused) {
+//
+//                                        Toast.makeText(MembersActivity.this, "Test", Toast.LENGTH_SHORT).show();
+//                                    }
+//                                });
+//
+////                                final String[] groupName = new String[1];
+////
+////                                userMembershipRef.addValueEventListener(new ValueEventListener() {
+////                                    @Override
+////                                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+////
+////                                        if(snapshot.child("name").exists()){
+////
+////                                            groupName[0] = (String) snapshot.child("name").getValue();
+////                                        }
+////                                    }
+////
+////                                    @Override
+////                                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
+////
+////                                    }
+////                                });
+////
+////                                userMembershipRef.child("name").setValue(groupName[0]);
+////                                userMembershipRef.child("status").setValue("admin");
+//
+//
+//
+//
+//                                MyDialog.dismiss();
+//
+//
+//
+//                            }
+//                        });
+//                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                    }
+//                });
+//
+//                AlertDialog dialog = builder.create();
+//                dialog.show();
 
 
             }
