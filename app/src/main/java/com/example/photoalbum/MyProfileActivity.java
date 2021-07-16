@@ -6,6 +6,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +16,9 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -109,6 +115,11 @@ public class MyProfileActivity extends AppCompatActivity implements ImageAdapter
                         Intent iPost = new Intent(MyProfileActivity.this, PostActivity.class);
                         iPost.putExtra("postType", "user");
                         startActivity(iPost);
+                        break;
+                    case R.id.my_profile_nav_menu_settings:
+                        
+                        MyCustomDialog();
+                        break;
                 }
 
             }
@@ -129,6 +140,115 @@ public class MyProfileActivity extends AppCompatActivity implements ImageAdapter
 
     }
 
+    private void MyCustomDialog() {
+
+        final Dialog MyDialog = new Dialog(MyProfileActivity.this);
+        MyDialog.setContentView(R.layout.dialog_user_settings);
+
+        Window window = MyDialog.getWindow();
+        if(window != null){
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(window.getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(lp);
+        }
+
+          TextView tv_changeName = (TextView) MyDialog.findViewById(R.id.dialog_user_setting_tv_changeName);
+          TextView tv_deleteAccount = (TextView) MyDialog.findViewById(R.id.dialog_user_setting_tv_deleteAccount);
+
+        tv_changeName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                changeUserName(MyDialog);
+            }
+        });
+
+        tv_deleteAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                deleteUserAccount(MyDialog);
+            }
+        });
+
+        MyDialog.show();
+    }
+
+    private void deleteUserAccount(Dialog myDialog) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MyProfileActivity.this);
+        builder.setCancelable(true);
+        builder.setTitle("Delete Account");
+        builder.setMessage("Are You Sure You Want To Delete Your Account?");
+        builder.setPositiveButton("Confirm",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        Toast.makeText(MyProfileActivity.this, "Account Deleted!", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        myDialog.dismiss();
+    }
+
+    private void changeUserName(Dialog myDialog) {
+
+
+        AlertDialog.Builder alert = new AlertDialog.Builder(MyProfileActivity.this);
+
+
+        final EditText edittext = new EditText(MyProfileActivity.this);
+        alert.setMessage("Enter a new  Name");
+        alert.setTitle("Change Your Current Name");
+
+        alert.setView(edittext);
+
+        alert.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+
+                String YouEditTextValue = edittext.getText().toString();
+
+
+                DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+                DatabaseReference userRef = rootRef.child("Users").child(currenUserID);
+
+                userRef.child("name").setValue(YouEditTextValue);
+
+                userName = YouEditTextValue;
+
+                tv_name.setText(YouEditTextValue);
+
+
+
+
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            }
+        });
+
+
+        alert.show();
+
+
+
+        Toast.makeText(MyProfileActivity.this, "Your name was succesfully changed!", Toast.LENGTH_SHORT).show();
+        myDialog.dismiss();
+    }
 
 
     private void retrieveUserNameFromFirebase() {

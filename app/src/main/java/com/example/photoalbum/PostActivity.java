@@ -147,6 +147,8 @@ public class PostActivity extends AppCompatActivity {
                             pd.dismiss();
                             Toast.makeText(PostActivity.this,"Upload succesfull!", Toast.LENGTH_LONG).show();
 
+                            finish();
+
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override

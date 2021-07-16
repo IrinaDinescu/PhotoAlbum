@@ -1,5 +1,6 @@
 package com.example.photoalbum;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.photoalbum.clase.User;
@@ -124,6 +126,17 @@ public class FriendsFragment extends Fragment {
 
                             holder.userName.setText(userName);
 
+                            holder.parentLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                                @Override
+                                public boolean onLongClick(View v) {
+
+                                    Intent i = new Intent(getContext(), ProfileActivity.class );
+                                    i.putExtra("visit_user_id", userIDs);
+                                    startActivity(i);
+
+                                    return false;
+                                }
+                            });
 
 
                     }
@@ -162,12 +175,16 @@ public class FriendsFragment extends Fragment {
         TextView userName;
         CircleImageView profileImage;
 
+        LinearLayout parentLayout;
+
         public FriendsViewHolder(@NonNull @NotNull View itemView) {
 
             super(itemView);
 
             userName = itemView.findViewById(R.id.users_profile_name);
             profileImage = itemView.findViewById(R.id.users_profile_image);
+
+            parentLayout = itemView.findViewById(R.id.users_linear_layout_dd);
 
         }
     }

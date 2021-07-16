@@ -209,6 +209,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
                         dataRef.removeValue();
 
+                        mPosts.remove(currentPost);
+
+                        notifyDataSetChanged();
+
                         Toast.makeText(mContext, "Image deleted!", Toast.LENGTH_SHORT).show();
 
                         MyDialog.dismiss();
@@ -229,6 +233,10 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
                     public void onSuccess(Void unused) {
 
                         DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("Groups Posts").child(publisherId).child(currentPost.getPostId());
+
+                        mPosts.remove(currentPost);
+
+                        notifyDataSetChanged();
 
                         dataRef.removeValue();
 

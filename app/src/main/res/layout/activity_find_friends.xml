@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FindFriendsActivity">
+    tools:context=".FindFriendsActivity"
+    android:orientation="vertical">
 
     <include
         layout="@layout/app_bar_layout"
         android:id="@+id/find_friends_toolbar">
     </include>
+
+<!--    <EditText-->
+<!--        android:id="@+id/et_searchbar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="2dp"-->
+<!--        />-->
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:padding="5dp"
+        app:queryHint="Search"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/find_friends_recycler_list"
@@ -20,4 +35,4 @@
         android:layout_below="@+id/find_friends_toolbar"
         android:layout_centerVertical="true"/>
 
-</RelativeLayout>
+</LinearLayout>

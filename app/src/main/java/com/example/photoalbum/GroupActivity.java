@@ -532,7 +532,10 @@ public class GroupActivity extends AppCompatActivity {
 
                 mAdapter = new ImageAdapter(GroupActivity.this, mPosts);
 
+
                 mRecylerView.setAdapter(mAdapter);
+
+                mAdapter.notifyDataSetChanged();
 
 
             }

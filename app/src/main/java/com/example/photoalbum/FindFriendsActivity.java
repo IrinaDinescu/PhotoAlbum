@@ -2,6 +2,7 @@ package com.example.photoalbum;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +22,7 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -34,6 +36,10 @@ public class FindFriendsActivity extends AppCompatActivity
     private Toolbar mToolbar;
     private RecyclerView findFriendsRecyclerList;
     private DatabaseReference UsersRef;
+
+    private FirebaseRecyclerAdapter<User, FindFriendsViewHolder> adapter;
+
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +57,92 @@ public class FindFriendsActivity extends AppCompatActivity
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("Find Friends");
 
+        searchView = findViewById(R.id.searchView);
+
+        if(searchView != null){
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    fbsearch(query);
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    fbsearch(newText);
+                    return false;
+                }
+            });
+        }
+
+
+
+    }
+
+    private void fbsearch(String searchText) {
+
+        String pquery = searchText;
+        Query sQuery = UsersRef.orderByChild("name").startAt(pquery).endAt(pquery + "\uf8ff");
+
+        FirebaseRecyclerOptions<User> options =
+                new FirebaseRecyclerOptions.Builder<User>()
+                .setQuery(sQuery, User.class)
+                .setLifecycleOwner(this)
+                .build();
+
+        adapter = new FirebaseRecyclerAdapter<User, FindFriendsViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull @NotNull FindFriendsActivity.FindFriendsViewHolder holder, int position, @NonNull @NotNull User model) {
+
+
+                holder.userName.setText(model.getName());
+
+
+                String imageName = model.getUid() + ".png";
+
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                StorageReference profileRef = storageReference.child("Users").child("Profile").child(imageName);
+
+                profileRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+
+                        Picasso.get()
+                                .load(uri)
+                                .into(holder.profileImage);
+
+                    }
+                });
+
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String visit_user_id =  getRef(position).getKey();
+
+                        Intent profileIntent = new Intent(FindFriendsActivity.this, ProfileActivity.class);
+                        profileIntent.putExtra("visit_user_id", visit_user_id);
+                        startActivity(profileIntent);
+                    }
+                });
+
+            }
+
+            @NonNull
+            @NotNull
+            @Override
+            public FindFriendsViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.users_display_layout, parent, false);
+                FindFriendsViewHolder viewHolder = new FindFriendsViewHolder(view);
+                return viewHolder;
+            }
+        };
+
+        findFriendsRecyclerList.setAdapter(adapter);
+
+        adapter.startListening();
+
     }
 
     @Override
@@ -60,10 +152,10 @@ public class FindFriendsActivity extends AppCompatActivity
 
         FirebaseRecyclerOptions<User> options =
                 new FirebaseRecyclerOptions.Builder<User>()
-                .setQuery(UsersRef, User.class)
-                .build();
+                        .setQuery(UsersRef, User.class)
+                        .build();
 
-        FirebaseRecyclerAdapter<User, FindFriendsViewHolder> adapter =
+         adapter =
                 new FirebaseRecyclerAdapter<User, FindFriendsViewHolder>(options) {
                     @Override
                     protected void onBindViewHolder(@NonNull @NotNull FindFriendsActivity.FindFriendsViewHolder holder, int position, @NonNull @NotNull User model) {
@@ -87,10 +179,6 @@ public class FindFriendsActivity extends AppCompatActivity
                             }
                         });
 
-//                        String imageUri = model.getProfileImageUri();
-//                        if(imageUri != ""){
-//                             Picasso.get().load(model.getProfileImageUri()).into(holder.profileImage);
-//                        }
 
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -102,10 +190,6 @@ public class FindFriendsActivity extends AppCompatActivity
                                 startActivity(profileIntent);
                             }
                         });
-
-
-
-
 
                     }
 
@@ -124,8 +208,9 @@ public class FindFriendsActivity extends AppCompatActivity
 
         adapter.startListening();
 
-
     }
+
+
 
     public  static class FindFriendsViewHolder extends RecyclerView.ViewHolder
     {
